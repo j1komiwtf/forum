@@ -23,6 +23,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { Loader2 } from "lucide-react";
+import { useLocale } from "@/hooks/use-locale";
 
 interface CreateComplaintDialogProps {
   open: boolean;
@@ -34,6 +35,8 @@ export function CreateComplaintDialog({
   onOpenChange,
 }: CreateComplaintDialogProps) {
   const { toast } = useToast();
+  const { t } = useLocale();
+
   const form = useForm<InsertComplaint>({
     resolver: zodResolver(insertComplaintSchema),
     defaultValues: {
@@ -44,21 +47,30 @@ export function CreateComplaintDialog({
 
   const createComplaintMutation = useMutation({
     mutationFn: async (data: InsertComplaint) => {
-      const res = await apiRequest("POST", "/api/complaints", data);
-      return res.json();
+      // Create the complaint first
+      const complaintRes = await apiRequest("POST", "/api/complaints", data);
+      const complaint = await complaintRes.json();
+
+      // Then create the initial message using the description
+      await apiRequest("POST", `/api/complaints/${complaint.id}/messages`, {
+        message: data.description,
+        isSystemMessage: false
+      });
+
+      return complaint;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/complaints"] });
       onOpenChange(false);
       form.reset();
       toast({
-        title: "Success",
-        description: "Support ticket created successfully",
+        title: t('status.success'),
+        description: t('status.success'),
       });
     },
     onError: (error: Error) => {
       toast({
-        title: "Error",
+        title: t('status.error'),
         description: error.message,
         variant: "destructive",
       });
@@ -69,7 +81,7 @@ export function CreateComplaintDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Create Support Ticket</DialogTitle>
+          <DialogTitle>{t('complaints.createTitle')}</DialogTitle>
         </DialogHeader>
 
         <Form {...form}>
@@ -84,7 +96,7 @@ export function CreateComplaintDialog({
               name="title"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Title</FormLabel>
+                  <FormLabel>{t('complaints.title')}</FormLabel>
                   <FormControl>
                     <Input {...field} />
                   </FormControl>
@@ -98,7 +110,7 @@ export function CreateComplaintDialog({
               name="description"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Description</FormLabel>
+                  <FormLabel>{t('complaints.description')}</FormLabel>
                   <FormControl>
                     <Textarea {...field} rows={5} />
                   </FormControl>
@@ -115,10 +127,10 @@ export function CreateComplaintDialog({
                 {createComplaintMutation.isPending ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Creating...
+                    {t('status.creating')}
                   </>
                 ) : (
-                  'Create Ticket'
+                  t('actions.create')
                 )}
               </Button>
             </DialogFooter>

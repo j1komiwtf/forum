@@ -1,5 +1,6 @@
 import { QueryClientProvider } from "@tanstack/react-query";
 import { AuthProvider } from "@/hooks/use-auth";
+import { LocaleProvider } from "@/hooks/use-locale";
 import { queryClient } from "./lib/queryClient";
 import { Switch, Route } from "wouter";
 import { Toaster } from "@/components/ui/toaster";
@@ -29,10 +30,12 @@ function Router() {
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <AuthProvider>
-        <Router />
-        <Toaster />
-      </AuthProvider>
+      <LocaleProvider>
+        <AuthProvider>
+          <Router />
+          <Toaster />
+        </AuthProvider>
+      </LocaleProvider>
     </QueryClientProvider>
   );
 }

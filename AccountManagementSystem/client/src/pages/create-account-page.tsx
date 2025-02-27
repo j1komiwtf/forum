@@ -20,10 +20,12 @@ import { Sidebar } from "@/components/layout/sidebar";
 import { Redirect } from "wouter";
 import { Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { useLocale } from "@/hooks/use-locale";
 
 export default function CreateAccountPage() {
   const { user } = useAuth();
   const { toast } = useToast();
+  const { t } = useLocale();
 
   const form = useForm({
     resolver: zodResolver(insertUserSchema),
@@ -43,21 +45,20 @@ export default function CreateAccountPage() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/users"] });
       toast({
-        title: "Success",
-        description: "User account created successfully",
+        title: t('status.success'),
+        description: t('status.success'),
       });
       form.reset();
     },
     onError: (error: Error) => {
       toast({
-        title: "Error",
+        title: t('status.error'),
         description: error.message,
         variant: "destructive",
       });
     },
   });
 
-  // Only owner can access this page
   if (user?.role !== UserRole.OWNER) {
     return <Redirect to="/" />;
   }
@@ -66,11 +67,11 @@ export default function CreateAccountPage() {
     <div className="flex min-h-screen">
       <Sidebar />
       <main className="flex-1 p-6">
-        <h1 className="text-3xl font-bold mb-6">Create Account</h1>
+        <h1 className="text-3xl font-bold mb-6">{t('navigation.createAccount')}</h1>
 
         <Card className="max-w-2xl">
           <CardHeader>
-            <CardTitle>Create New User Account</CardTitle>
+            <CardTitle>{t('navigation.createAccount')}</CardTitle>
           </CardHeader>
           <CardContent>
             <form
@@ -78,7 +79,7 @@ export default function CreateAccountPage() {
               className="space-y-4"
             >
               <div className="space-y-2">
-                <Label htmlFor="username">Username (for login)</Label>
+                <Label htmlFor="username">{t('auth.username')}</Label>
                 <Input
                   id="username"
                   {...form.register("username")}
@@ -87,7 +88,7 @@ export default function CreateAccountPage() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="displayName">Display Name</Label>
+                <Label htmlFor="displayName">{t('auth.displayName')}</Label>
                 <Input
                   id="displayName"
                   {...form.register("displayName")}
@@ -96,7 +97,7 @@ export default function CreateAccountPage() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="password">Password</Label>
+                <Label htmlFor="password">{t('auth.password')}</Label>
                 <Input
                   id="password"
                   type="password"
@@ -106,19 +107,19 @@ export default function CreateAccountPage() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="role">Role</Label>
+                <Label htmlFor="role">{t('auth.role')}</Label>
                 <Select
                   onValueChange={(value) => form.setValue("role", value as UserRole)}
                   defaultValue={form.getValues("role")}
                 >
                   <SelectTrigger className="max-w-md">
-                    <SelectValue placeholder="Select user role" />
+                    <SelectValue placeholder={t('roles.user')} />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value={UserRole.ADMIN}>Administrator</SelectItem>
-                    <SelectItem value={UserRole.MODERATOR}>Moderator</SelectItem>
-                    <SelectItem value={UserRole.SUPPORT}>Support</SelectItem>
-                    <SelectItem value={UserRole.USER}>User</SelectItem>
+                    <SelectItem value={UserRole.ADMIN}>{t('roles.admin')}</SelectItem>
+                    <SelectItem value={UserRole.MODERATOR}>{t('roles.moderator')}</SelectItem>
+                    <SelectItem value={UserRole.SUPPORT}>{t('roles.support')}</SelectItem>
+                    <SelectItem value={UserRole.USER}>{t('roles.user')}</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -131,7 +132,7 @@ export default function CreateAccountPage() {
                 {createUserMutation.isPending && (
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                 )}
-                Create Account
+                {t('navigation.createAccount')}
               </Button>
             </form>
           </CardContent>

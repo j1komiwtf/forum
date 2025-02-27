@@ -7,9 +7,11 @@ import { UserTable } from "@/components/admin/user-table";
 import { ComplaintTable } from "@/components/admin/complaint-table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Redirect } from "wouter";
+import { useLocale } from "@/hooks/use-locale";
 
 export default function AdminPage() {
   const { user } = useAuth();
+  const { t } = useLocale();
 
   const { data: users } = useQuery<User[]>({
     queryKey: ["/api/users"],
@@ -40,46 +42,46 @@ export default function AdminPage() {
     <div className="flex min-h-screen">
       <Sidebar />
       <main className="flex-1 p-6">
-        <h1 className="text-3xl font-bold mb-6">Admin Dashboard</h1>
+        <h1 className="text-3xl font-bold mb-6">{t('navigation.admin')}</h1>
 
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 mb-6">
           <StatsCard
-            title="Total Users"
+            title={t('status.total')}
             value={users?.length ?? 0}
-            description="Registered users"
+            description={t('status.registered')}
           />
           <StatsCard
-            title="Premium Users"
+            title={t('status.premium')}
             value={premiumUsers.length}
-            description="Users with premium status"
+            description={t('status.premiumDesc')}
             variant="premium"
           />
           <StatsCard
-            title="Verified Users"
+            title={t('status.verified')}
             value={verifiedUsers.length}
-            description="Users with verification"
+            description={t('status.verifiedDesc')}
           />
           <StatsCard
-            title="Active Sessions"
+            title={t('status.active')}
             value={activeSessions?.length ?? 0}
-            description="Currently active sessions"
+            description={t('status.activeDesc')}
           />
         </div>
 
         <Tabs defaultValue="users" className="space-y-6">
           <TabsList>
-            <TabsTrigger value="users">User Management</TabsTrigger>
+            <TabsTrigger value="users">{t('navigation.users')}</TabsTrigger>
             {isStaff(user!) && (
-              <TabsTrigger value="complaints">Complaints</TabsTrigger>
+              <TabsTrigger value="complaints">{t('navigation.complaints')}</TabsTrigger>
             )}
             {isOwner(user!) && (
-              <TabsTrigger value="staff">Staff Management</TabsTrigger>
+              <TabsTrigger value="staff">{t('navigation.staff')}</TabsTrigger>
             )}
           </TabsList>
 
           <TabsContent value="users">
             <div>
-              <h2 className="text-2xl font-bold mb-4">User Management</h2>
+              <h2 className="text-2xl font-bold mb-4">{t('navigation.users')}</h2>
               <UserTable users={users ?? []} currentUser={user!} />
             </div>
           </TabsContent>
@@ -87,7 +89,7 @@ export default function AdminPage() {
           {isStaff(user!) && (
             <TabsContent value="complaints">
               <div>
-                <h2 className="text-2xl font-bold mb-4">Complaint Management</h2>
+                <h2 className="text-2xl font-bold mb-4">{t('navigation.complaints')}</h2>
                 <ComplaintTable 
                   complaints={complaints ?? []} 
                   users={users ?? []}
@@ -100,13 +102,12 @@ export default function AdminPage() {
           {isOwner(user!) && (
             <TabsContent value="staff">
               <div>
-                <h2 className="text-2xl font-bold mb-4">Staff Management</h2>
+                <h2 className="text-2xl font-bold mb-4">{t('navigation.staff')}</h2>
                 <div className="mb-4">
-                  <h3 className="text-lg font-semibold mb-2">Staff Members</h3>
+                  <h3 className="text-lg font-semibold mb-2">{t('navigation.staffMembers')}</h3>
                   <UserTable 
                     users={staffUsers ?? []} 
                     currentUser={user!}
-                    staffOnly
                   />
                 </div>
               </div>

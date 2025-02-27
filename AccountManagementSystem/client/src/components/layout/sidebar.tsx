@@ -2,6 +2,9 @@ import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/use-auth";
 import { useLocation } from "wouter";
 import { UserRole } from "@shared/schema";
+import { useLocale } from "@/hooks/use-locale";
+import { ThemeToggle } from "@/components/ui/theme-toggle";
+import { LanguageToggle } from "@/components/ui/language-toggle";
 import {
   Users,
   LayoutDashboard,
@@ -16,15 +19,22 @@ import {
 export function Sidebar() {
   const { user, logoutMutation } = useAuth();
   const [location, setLocation] = useLocation();
+  const { t } = useLocale();
 
   const isStaff = user?.role !== UserRole.USER;
   const isOwner = user?.role === UserRole.OWNER;
 
   return (
     <div className="w-64 border-r bg-sidebar p-4 flex flex-col">
-      <div className="flex items-center gap-2 px-2 py-4">
-        <Shield className="h-6 w-6" />
-        <span className="font-bold text-lg">User Management</span>
+      <div className="flex items-center justify-between px-2 py-4">
+        <div className="flex items-center gap-2">
+          <Shield className="h-6 w-6" />
+          <span className="font-bold text-lg">{t('common.appName')}</span>
+        </div>
+        <div className="flex items-center gap-2">
+          <ThemeToggle />
+          <LanguageToggle />
+        </div>
       </div>
 
       <nav className="flex-1 py-4">
@@ -35,7 +45,7 @@ export function Sidebar() {
             onClick={() => setLocation("/")}
           >
             <LayoutDashboard className="mr-2 h-4 w-4" />
-            Dashboard
+            {t('navigation.dashboard')}
           </Button>
 
           {isStaff && (
@@ -45,7 +55,7 @@ export function Sidebar() {
               onClick={() => setLocation("/admin")}
             >
               <Users className="mr-2 h-4 w-4" />
-              Admin Panel
+              {t('navigation.admin')}
             </Button>
           )}
 
@@ -56,7 +66,7 @@ export function Sidebar() {
               onClick={() => setLocation("/create-account")}
             >
               <UserPlus className="mr-2 h-4 w-4" />
-              Create Account
+              {t('navigation.createAccount')}
             </Button>
           )}
 
@@ -66,7 +76,7 @@ export function Sidebar() {
             onClick={() => setLocation("/complaints")}
           >
             <MessageSquare className="mr-2 h-4 w-4" />
-            Support Tickets
+            {t('navigation.complaints')}
           </Button>
         </div>
       </nav>
@@ -87,7 +97,7 @@ export function Sidebar() {
                 )}
               </p>
               <p className="text-xs text-muted-foreground text-left">
-                {user?.role}
+                {t(`roles.${user?.role.toLowerCase()}`)}
               </p>
             </div>
           </div>
@@ -99,7 +109,7 @@ export function Sidebar() {
           onClick={() => logoutMutation.mutate()}
         >
           <LogOut className="mr-2 h-4 w-4" />
-          Logout
+          {t('auth.logout')}
         </Button>
       </div>
     </div>
